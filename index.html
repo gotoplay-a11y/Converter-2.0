@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="uk" class="h-full">
 <head>
-    <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#000000">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -55,11 +55,6 @@
         }
     </style>
 </head>
-    <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js');
-  }
-</script>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-full flex flex-col transition-colors duration-200">
 
     <!-- Top Navigation Bar -->
@@ -109,11 +104,9 @@
             <span class="text-slate-500 dark:text-slate-400 text-xs">Офіційні та ринкові дані валют</span>
         </div>
 
-        <!-- Main Grid: Converter (Left/Top) & Favorites Quick Convert (Right/Bottom) -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-
-            <!-- Primary Converter Card -->
-            <section class="lg:col-span-7 bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-700/60 shadow-xl shadow-slate-200/40 dark:shadow-none space-y-6">
+        <!-- Primary Converter Card Container (Centered) -->
+        <div class="max-w-4xl mx-auto w-full">
+            <section class="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-700/60 shadow-xl shadow-slate-200/40 dark:shadow-none space-y-6">
                 <div class="flex items-center justify-between">
                     <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
                         <i class="fa-solid fa-calculator text-blue-600 dark:text-blue-400"></i>
@@ -200,38 +193,6 @@
                     <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-blue-100/80 pt-2 border-t border-white/10">
                         <span id="rate-display">1 UAH = ...</span>
                         <span id="inverse-rate-display">1 USD = ...</span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Favorited Currencies Dashboard (Multi-conversion) -->
-            <section class="lg:col-span-5 bg-white dark:bg-slate-800 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-700/60 shadow-xl shadow-slate-200/40 dark:shadow-none space-y-4">
-                <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-700/60">
-                    <div>
-                        <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                            <i class="fa-solid fa-star text-amber-400"></i>
-                            Обрані Валюти
-                        </h2>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Швидкий розрахунок суми у ваших обраних</p>
-                    </div>
-                    <span id="fav-count-badge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300">
-                        0
-                    </span>
-                </div>
-
-                <!-- Favorites List Container -->
-                <div id="favorites-list" class="space-y-3 max-h-[380px] overflow-y-auto pr-1 custom-scrollbar">
-                    <!-- Dynamic Favorites Rendered Here -->
-                </div>
-
-                <!-- Add Favorite Quick Prompt if Empty -->
-                <div id="fav-empty-state" class="hidden text-center py-8 px-4 space-y-3 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl">
-                    <div class="w-12 h-12 rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-500 mx-auto flex items-center justify-center text-xl">
-                        <i class="fa-regular fa-star"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">Немає обраних валют</p>
-                        <p class="text-xs text-slate-400 mt-1">Натисніть зірочку біля будь-якої валюти в списку нижче, щоб додати її сюди.</p>
                     </div>
                 </div>
             </section>
@@ -490,56 +451,8 @@
                 favPairText.textContent = "В обране";
             }
 
-            renderFavoritesList();
             renderCurrenciesGrid();
             renderHistory();
-        }
-
-        // Render Favorites Multi-Converter Panel
-        function renderFavoritesList() {
-            const listEl = document.getElementById('favorites-list');
-            const emptyEl = document.getElementById('fav-empty-state');
-            const badgeEl = document.getElementById('fav-count-badge');
-
-            badgeEl.textContent = state.favorites.length;
-
-            if (state.favorites.length === 0) {
-                listEl.innerHTML = '';
-                emptyEl.classList.remove('hidden');
-                return;
-            }
-
-            emptyEl.classList.add('hidden');
-            const baseAmount = parseFloat(state.amount) || 0;
-
-            listEl.innerHTML = state.favorites.map(code => {
-                const curr = CURRENCIES[code] || { name: code, symbol: code, flag: '🌐' };
-                const converted = convert(baseAmount, state.fromCurrency, code);
-                const rateOne = convert(1, state.fromCurrency, code);
-
-                return `
-                    <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/80 border border-slate-100 dark:border-slate-700/60 hover:border-blue-300 dark:hover:border-blue-600 transition-all group">
-                        <div class="flex items-center gap-3 overflow-hidden">
-                            <span class="text-2xl">${curr.flag}</span>
-                            <div class="truncate">
-                                <div class="flex items-center gap-2">
-                                    <span class="font-bold text-sm text-slate-900 dark:text-white">${code}</span>
-                                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">1 ${state.fromCurrency} = ${formatNumber(rateOne, 2)}</span>
-                                </div>
-                                <div class="text-xs text-slate-400 truncate">${curr.name}</div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3 text-right">
-                            <div>
-                                <div class="font-bold text-base text-slate-900 dark:text-white">${formatNumber(converted)} ${curr.symbol}</div>
-                            </div>
-                            <button onclick="toggleFavorite('${code}')" class="star-anim text-amber-400 hover:text-amber-500 p-1.5 opacity-80 group-hover:opacity-100 transition-opacity" title="Видалити з обраного">
-                                <i class="fa-solid fa-star text-base"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
         }
 
         // Render All Currencies Cards
@@ -550,7 +463,7 @@
 
             const q = state.searchQuery.toLowerCase().trim();
             
-            const keys = Object.keys(CURRENCIES).filter(code => {
+            let keys = Object.keys(CURRENCIES).filter(code => {
                 const curr = CURRENCIES[code];
                 const matchesSearch = code.toLowerCase().includes(q) || 
                                       curr.name.toLowerCase().includes(q) ||
@@ -560,6 +473,15 @@
                     return matchesSearch && state.favorites.includes(code);
                 }
                 return matchesSearch;
+            });
+
+            // Sort favorites to top
+            keys.sort((a, b) => {
+                const isFavA = state.favorites.includes(a);
+                const isFavB = state.favorites.includes(b);
+                if (isFavA && !isFavB) return -1;
+                if (!isFavA && isFavB) return 1;
+                return 0;
             });
 
             if (keys.length === 0) {
@@ -577,16 +499,19 @@
                 const unitRate = convert(1, state.fromCurrency, code);
 
                 return `
-                    <div class="p-4 rounded-2xl border ${isFav ? 'border-amber-200 dark:border-amber-900/50 bg-amber-50/20 dark:bg-amber-950/10' : 'border-slate-200/80 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-900/40'} hover:border-blue-400 dark:hover:border-blue-500 transition-all flex flex-col justify-between space-y-3 group">
+                    <div class="p-4 rounded-2xl border ${isFav ? 'border-amber-300/80 dark:border-amber-700/60 bg-amber-50/30 dark:bg-amber-950/20' : 'border-slate-200/80 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-900/40'} hover:border-blue-400 dark:hover:border-blue-500 transition-all flex flex-col justify-between space-y-3 group">
                         <div class="flex items-start justify-between">
                             <div class="flex items-center gap-2.5">
                                 <span class="text-2xl">${curr.flag}</span>
                                 <div>
-                                    <div class="font-bold text-sm text-slate-900 dark:text-white">${code}</div>
+                                    <div class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-1.5">
+                                        ${code}
+                                        ${isFav ? '<i class="fa-solid fa-star text-amber-400 text-[11px]" title="Обране"></i>' : ''}
+                                    </div>
                                     <div class="text-xs text-slate-400 line-clamp-1">${curr.name}</div>
                                 </div>
                             </div>
-                            <button onclick="toggleFavorite('${code}')" class="star-anim p-1 text-slate-300 dark:text-slate-600 hover:text-amber-400 dark:hover:text-amber-400 transition-colors">
+                            <button onclick="toggleFavorite('${code}')" class="star-anim p-1 text-slate-300 dark:text-slate-600 hover:text-amber-400 dark:hover:text-amber-400 transition-colors" title="${isFav ? 'Видалити з обраного' : 'Додати в обране'}">
                                 <i class="${isFav ? 'fa-solid text-amber-400' : 'fa-regular'} fa-star text-base"></i>
                             </button>
                         </div>
@@ -648,6 +573,12 @@
             }
             saveFavorites();
             updateUI();
+
+            // Refresh modal list if modal is open
+            const modalSearchInput = document.getElementById('modal-search-input');
+            if (modalSearchInput) {
+                renderModalList(modalSearchInput.value);
+            }
         }
 
         // Modal Controls
@@ -659,8 +590,8 @@
 
             title.textContent = target === 'from' ? 'Виберіть базову валюту' : 'Виберіть валюту призначення';
             
-            renderModalList('');
             document.getElementById('modal-search-input').value = '';
+            renderModalList('');
 
             modal.classList.remove('pointer-events-none', 'opacity-0');
             card.classList.remove('scale-95');
@@ -680,27 +611,46 @@
             const listEl = document.getElementById('modal-currency-list');
             const q = query.toLowerCase().trim();
 
-            const filtered = Object.keys(CURRENCIES).filter(code => {
+            let filtered = Object.keys(CURRENCIES).filter(code => {
                 const curr = CURRENCIES[code];
                 return code.toLowerCase().includes(q) || curr.name.toLowerCase().includes(q);
+            });
+
+            // Sort favorited currencies to the top
+            filtered.sort((a, b) => {
+                const isFavA = state.favorites.includes(a);
+                const isFavB = state.favorites.includes(b);
+                if (isFavA && !isFavB) return -1;
+                if (!isFavA && isFavB) return 1;
+                return 0;
             });
 
             listEl.innerHTML = filtered.map(code => {
                 const curr = CURRENCIES[code];
                 const isSelected = (state.modalTarget === 'from' && state.fromCurrency === code) ||
                                    (state.modalTarget === 'to' && state.toCurrency === code);
+                const isFav = state.favorites.includes(code);
 
                 return `
-                    <button onclick="selectModalCurrency('${code}')" class="w-full flex items-center justify-between p-3 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-all ${isSelected ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-bold' : 'text-slate-700 dark:text-slate-200'}">
+                    <div onclick="selectModalCurrency('${code}')" class="w-full flex items-center justify-between p-3 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-all cursor-pointer ${isSelected ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-bold' : 'text-slate-700 dark:text-slate-200'}">
                         <div class="flex items-center gap-3">
                             <span class="text-2xl">${curr.flag}</span>
                             <div class="text-left">
-                                <div class="text-sm font-semibold">${code}</div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-semibold">${code}</span>
+                                    ${isFav ? '<i class="fa-solid fa-star text-amber-400 text-[10px]" title="Обрана"></i>' : ''}
+                                    ${isSelected ? '<span class="text-[10px] bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300 px-1.5 py-0.5 rounded font-medium">Вибрано</span>' : ''}
+                                </div>
                                 <div class="text-xs text-slate-400">${curr.name}</div>
                             </div>
                         </div>
-                        ${isSelected ? '<i class="fa-solid fa-check text-blue-600 dark:text-blue-400"></i>' : ''}
-                    </button>
+                        <div class="flex items-center gap-2">
+                            <button onclick="event.stopPropagation(); toggleFavorite('${code}');" class="star-anim p-2 rounded-lg text-slate-300 dark:text-slate-600 hover:text-amber-400 dark:hover:text-amber-400 transition-colors" title="${isFav ? 'Видалити з обраного' : 'Додати в обране'}">
+                                <i class="${isFav ? 'fa-solid text-amber-400' : 'fa-regular'} fa-star text-lg"></i>
+                            </button>
+                            ${isSelected ? '<i class="fa-solid fa-check text-blue-600 dark:text-blue-400 text-sm ml-1"></i>' : ''}
+                        </div>
+                    </div>
                 `;
             }).join('');
         }
@@ -847,7 +797,7 @@
             fetchExchangeRates();
         });
     </script>
-    <script>
+  <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js');
   }
